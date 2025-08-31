@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Госпиталь «Мать и дитя» — интерактивная игра</title>
+</head>
+<body>
+  <h1>Интерактивная игра «Мать и дитя»</h1>
+  <canvas id="runnerCanvas" width="900" height="240" style="width:100%;background:#fff;border:1px solid #ccc"></canvas>
+  <button id="runnerStart">Старт</button>
+  <button id="runnerReset">Рестарт</button>
+  <div id="runnerScore">Очки: 0</div>
+  <div id="runnerStatus">Готово к старту</div>
+
+<script>
+(function(){
+  const canvas=document.getElementById('runnerCanvas');
+  const ctx=canvas.getContext('2d');
+  const GROUND_Y=canvas.height-40;
+  const gravity=0.7, jumpV=-12.5;
+  let running=false, gameOver=false, score=0, speed=6;
+  const doctor={x:60,y:GROUND_Y-40,w:40,h:40,vy:0,onGround:true};
+  const obstacles=[], goodies=[];
+  const obstacleTypes=[{w:20,h:40,label:'📄'},{w:30,h:50,label:'🗂️'}];
+  const goodieTypes=[{w:24,h:24,label:'🧬',score:10},{w:24,h:24,label:'🔬',score:10}];
+  const logoImg=new Image(); logoImg.src='https://upload.wikimedia.org/wikipedia/commons/thumb/d/d5/MD_logo.svg/512px-MD_logo.svg.png';
+  let logoReady=false; logoImg.onload=()=>logoReady=true;
+  let lastTime=0, obTimer=0, gdTimer=0;
+  function randInt(a,b){return Math.floor(Math.random()*(b-a+1))+a}
+  function reset(){
+    running=false;gameOver=false;score=0;speed=6;
+    doctor.y=GROUND_Y-doctor.h;doctor.vy=0;doctor.onGround=true;
+    obstacles.length=0;goodies.length=0;obTimer=0;gdTimer=0;lastTime=0;
+    document.getElementById('runnerScore').textContent='Очки: 0';
+    document.getElementById('runnerStatus').textContent='Готово к старту';
+    drawScene();
+  }
+  function spawnObstacle(){const t=obstacleTypes[randInt(0,obstacleTypes.length-1)];obstacles.push({x:canvas.width+10,y:GROUND_Y-t.h,w:t.w,h:t.h,label:t.label});}
+  function spawnGoodie(){const t=goodieTypes[randInt(0,goodieTypes.length-1)];const y=GROUND_Y-t.h-30;goodies.push({x:canvas.width+10,y,w:t.w,h:t.h,label:t.label,score:t.score});}
+  function rectsOverlap(a,b){return a.x<b.x+b.w&&a.x+a.w>b.x&&a.y<b.y+b.h&&a.y+a.h>b.y}
+  function update(dt){
+    if(!running||gameOver) return;
+    speed+=dt*0.0003;
+    doctor.vy+=gravity;doctor.y+=doctor.vy;
+    if(doctor.y+doctor.h>=GROUND_Y){doctor.y=GROUND_Y-doctor.h;doctor.vy=0;doctor.onGround=true;}
+    else doctor.onGround=false;
+    obstacles.forEach(o=>o.x-=speed);goodies.forEach(g=>g.x-=speed);
+    for(const o of obstacles){if(rectsOverlap(doctor,o)){gameOver=true;running=false;document.getElementById('runnerStatus').textContent='Столкновение';}}
+    for(let i=goodies.length-1;i>=0;i--){const g=goodies[i];if(rectsOverlap(doctor,g)){score+=g.score;goodies.splice(i,1);document.getElementById('runnerScore').textContent='Очки: '+score;}}
+    while(obstacles.length&&obstacles[0].x+obstacles[0].w<-10) obstacles.shift();
+    while(goodies.length&&goodies[0].x+goodies[0].w<-10) goodies.shift();
+    obTimer+=dt;gdTimer+=dt;
+    if(obTimer>1200){spawnObstacle();obTimer=0;}
+    if(gdTimer>2000){spawnGoodie();gdTimer=0;}
+    document.getElementById('runnerStatus').textContent='Идёт игра';
+  }
+  function drawScene(){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    ctx.fillStyle='#fafafa';ctx.fillRect(0,0,canvas.width,canvas.height);
+    ctx.strokeStyle='#ddd';ctx.beginPath();ctx.moveTo(0,GROUND_Y);ctx.lineTo(canvas.width,GROUND_Y);ctx.stroke();
+    ctx.fillStyle='#ffefe8';ctx.fillRect(doctor.x,doctor.y,doctor.w,doctor.h);
+    ctx.strokeStyle='#E94E1B';ctx.strokeRect(doctor.x,doctor.y,doctor.w,doctor.h);
+    ctx.font='20px system-ui';ctx.fillStyle='#E94E1B';ctx.fillText('👩‍⚕️',doctor.x+8,doctor.y+26);
+    if(logoReady){ctx.drawImage(logoImg,doctor.x+12,doctor.y+12,16,16);}
+    obstacles.forEach(o=>{ctx.fillStyle='#fff7f0';ctx.fillRect(o.x,o.y,o.w,o.h);ctx.strokeStyle='#f3b08f';ctx.strokeRect(o.x,o.y,o.w,o.h);ctx.fillText(o.label,o.x,o.y+20);});
+    goodies.forEach(g=>{ctx.fillStyle='#eaf7ff';ctx.fillRect(g.x,g.y,g.w,g.h);ctx.strokeStyle='#9bc9ff';ctx.strokeRect(g.x,g.y,g.w,g.h);ctx.fillText(g.label,g.x,g.y+20);});
+    if(!running){ctx.fillStyle='#999';ctx.textAlign='center';ctx.fillText(gameOver?'Игра окончена':'Нажмите Старт или пробел',canvas.width/2,40);}
+  }
+  function loop(ts){if(!lastTime) lastTime=ts;const dt=ts-lastTime;lastTime=ts;update(dt);drawScene();requestAnimationFrame(loop);}
+  function jump(){if(doctor.onGround&&!gameOver){doctor.vy=jumpV;doctor.onGround=false;}}
+  document.getElementById('runnerStart').onclick=()=>{if(!running){running=true;gameOver=false;}};
+  document.getElementById('runnerReset').onclick=()=>reset();
+  window.addEventListener('keydown',e=>{if(e.code==='Space'){e.preventDefault();if(!running&&!gameOver){running=true;}jump();}});
+  canvas.addEventListener('mousedown',()=>{if(!running&&!gameOver){running=true;}jump();});
+  reset();requestAnimationFrame(loop);
+})();</script>
+</body>
+</html>
