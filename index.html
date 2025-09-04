@@ -1,0 +1,768 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1, viewport-fit=cover"
+  />
+  <title>Интерактивная игра — ГК «Мать и дитя»</title>
+  <meta name="description" content="Обучающая интерактивная викторина в стиле ГК «Мать и дитя». Работает на GitHub Pages.">
+  <style>
+    :root{
+      /* ЛЕГКО ПОДСТРОИТЬ ФИРМЕННЫЙ СТИЛЬ ЗДЕСЬ */
+      --brand-primary:#d94a4a;   /* тёплый акцент (замените при необходимости) */
+      --brand-primary-600:#bf3f3f;
+      --brand-primary-100:#fdeaea;
+      --brand-accent:#f6b94c;    /* мягкий акцент */
+      --bg:#ffffff;
+      --ink:#1f2937;
+      --muted:#6b7280;
+      --ok:#1b8f5a;
+      --bad:#b42318;
+      --surface:#ffffff;
+      --card:#ffffff;
+      --shadow:0 6px 30px rgba(0,0,0,.08);
+      --radius:16px;
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);font:16px/1.5 ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,"Helvetica Neue","Noto Sans",Arial}
+    img,video{max-width:100%;height:auto;border-radius:12px}
+    a{color:var(--brand-primary);text-decoration:none}
+    a:hover{color:var(--brand-primary-600);text-decoration:underline}
+    .container{max-width:980px;margin:0 auto;padding:24px}
+    header{
+      display:flex;gap:16px;align-items:center;justify-content:center;
+      padding:20px 12px;border-bottom:1px solid #eee;background:linear-gradient(180deg,var(--brand-primary-100),#fff 65%);
+    }
+    header img.logo{height:60px;width:auto}
+    header h1{margin:0;font-weight:750;letter-spacing:.2px}
+    .card{
+      background:var(--card);border:1px solid #eee;border-radius:var(--radius);
+      box-shadow:var(--shadow);padding:20px;margin:18px 0;
+    }
+    .muted{color:var(--muted)}
+    .btn{
+      appearance:none;border:0;border-radius:12px;padding:12px 18px;
+      background:var(--brand-primary);color:#fff;font-weight:700;cursor:pointer;
+      box-shadow:0 6px 16px rgba(217,74,74,.28);transition:transform .05s ease,opacity .2s ease, background .2s ease
+    }
+    .btn[disabled]{opacity:.5;cursor:not-allowed}
+    .btn:hover{background:var(--brand-primary-600)}
+    .btn:active{transform:translateY(1px)}
+    .btn.secondary{background:#111827;color:#fff}
+    .btn.ghost{background:transparent;border:1px solid #ddd;color:#111827}
+    .grid{display:grid;gap:14px}
+    .grid.cols-2{grid-template-columns:repeat(2,minmax(0,1fr))}
+    @media (max-width:760px){.grid.cols-2{grid-template-columns:1fr}}
+    .section-card{
+      border:1px solid #eee;border-radius:14px;overflow:hidden;background:#fff;cursor:pointer;
+      transition:transform .1s ease, box-shadow .2s ease
+    }
+    .section-card:hover{transform:translateY(-2px);box-shadow:0 8px 22px rgba(0,0,0,.08)}
+    .section-card .body{padding:12px 14px}
+    .badge{display:inline-block;padding:4px 10px;border-radius:999px;background:var(--brand-primary-100);color:var(--brand-primary);font-weight:700;font-size:12px}
+    .form-row{display:flex;gap:12px;flex-wrap:wrap}
+    .form-row .field{flex:1 1 240px;min-width:220px}
+    .field label{display:block;font-weight:700;margin-bottom:6px}
+    .field input, .field select{
+      width:100%;padding:10px 12px;border:1px solid #e5e7eb;border-radius:10px;background:#fff
+    }
+    .question{padding:16px;border:1px solid #eee;border-radius:14px;margin:14px 0;background:#fff}
+    .question h3{margin:.2rem 0 .6rem 0}
+    .options{display:grid;gap:8px;margin-top:10px}
+    .option{
+      background:#fafafa;border:1px solid #eee;border-radius:12px;padding:10px 12px;display:flex;gap:10px;align-items:flex-start
+    }
+    .option.correct{outline:2px solid rgba(27,143,90,.25);background:#f0fbf6}
+    .option.wrong{outline:2px solid rgba(180,35,24,.25);background:#fff6f5}
+    .q-meta{display:flex;align-items:center;gap:8px;margin-top:8px}
+    .q-meta .pill{font-size:12px;padding:4px 8px;border-radius:999px;background:#f3f4f6}
+    .q-feedback{margin-top:10px;font-weight:700}
+    .q-feedback.ok{color:var(--ok)}
+    .q-feedback.bad{color:var(--bad)}
+    .progress{height:10px;background:#f3f4f6;border-radius:999px;overflow:hidden}
+    .progress > span{display:block;height:100%;background:var(--brand-accent);width:0%}
+    .footer-note{font-size:13px;color:#6b7280;margin-top:10px}
+    .result-box{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+    .winner{background:var(--brand-primary-100);border:1px dashed var(--brand-primary);color:var(--brand-primary);padding:12px 14px;border-radius:12px;font-weight:800}
+
+    /* МОДАЛ «обязательно перед стартом» */
+    .modal-backdrop{
+      position:fixed;inset:0;background:rgba(0,0,0,.38);
+      display:flex;align-items:center;justify-content:center;padding:20px;z-index:50
+    }
+    .modal{max-width:720px;width:100%;background:#fff;border-radius:18px;box-shadow:var(--shadow);padding:18px 18px 22px}
+    .modal h2{margin:0 0 8px 0}
+    .modal .rules{max-height:36vh;overflow:auto;border:1px solid #eee;border-radius:12px;padding:12px;background:#fafafa}
+    .modal .actions{display:flex;gap:10px;justify-content:flex-end;margin-top:14px;flex-wrap:wrap}
+
+    /* скрытие экранов */
+    .screen{display:none}
+    .screen.active{display:block}
+    .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+  </style>
+</head>
+<body>
+  <header>
+    <!-- ЗАМЕНИТЕ src НА ВАШ ФАЙЛ ЛОГОТИПА В РЕПОЗИТОРИИ: images/logo.png -->
+    <img class="logo" src="images/logo.png" alt="ГК «Мать и дитя» (логотип)" onerror="this.style.display='none'">
+    <h1>Интерактивная игра — ГК «Мать и дитя»</h1>
+  </header>
+
+  <!-- МОДАЛ: обязательные правила перед стартом -->
+  <div id="rulesModal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="rulesTitle">
+    <div class="modal">
+      <h2 id="rulesTitle">Правила участия</h2>
+      <div class="rules">
+        <p><strong>Цель:</strong> пройти разделы «Вспомогательные репродуктивные технологии и гинекология» и «Акушерство», ответив на вопросы.</p>
+        <ul>
+          <li>Вопросы бывают с одним правильным ответом или с несколькими правильными.</li>
+          <li><strong>Счёт:</strong> одиночный вариант — <b>1 балл</b>; множественный выбор — <b>0.5 балла</b> за каждый правильный, <b>1 балл</b> при полностью верном ответе (без штрафов).</li>
+          <li>При сумме баллов <b>≥ 5</b> появится сообщение «<b>Вы — победитель! Заберите приз!</b>».</li>
+          <li>Медиа (фото/видео) использованы из корпоративной папки (замените пути на свои файлы в репозитории).</li>
+          <li>Результаты сохраняются локально в вашем браузере (localStorage).</li>
+        </ul>
+      </div>
+      <div class="form-row" style="margin-top:10px">
+        <div class="field">
+          <label for="playerName">Ваше имя (обязательно)</label>
+          <input id="playerName" type="text" placeholder="Например: Иван Петров">
+        </div>
+        <div class="field">
+          <label for="playerDept">Подразделение / группа (необязательно)</label>
+          <input id="playerDept" type="text" placeholder="Отдел / учебная группа">
+        </div>
+      </div>
+      <label style="display:flex;gap:10px;align-items:flex-start;margin-top:10px">
+        <input id="agree" type="checkbox">
+        <span>Я ознакомлен(а) с правилами и согласен(согласна) начать игру.</span>
+      </label>
+      <div class="actions">
+        <button id="startBtn" class="btn" disabled>Начать</button>
+      </div>
+    </div>
+  </div>
+
+  <main class="container">
+    <!-- ЭКРАН 1: выбор раздела -->
+    <section id="screen-sections" class="screen active">
+      <div class="card">
+        <h2 style="margin-top:0">Выберите раздел или запустите полное прохождение</h2>
+        <p class="muted">Подставьте свои обложки: замените файлы <code>images/section_art.jpg</code>, <code>images/section_ob.jpg</code> в репозитории.</p>
+        <div class="grid cols-2" id="sectionsGrid">
+          <!-- Карточки разделов генерируются скриптом из QUIZ_DATA -->
+        </div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px">
+          <button id="startFullBtn" class="btn">Пройти оба раздела подряд</button>
+          <a class="btn ghost" href="#" id="consiliumLink" title="Отдельная игра «Консилиум» (5 этапов)">Консилиум (отдельно)</a>
+        </div>
+        <p class="footer-note">Подсказка: чтобы обновить контент, отредактируйте JSON-данные внутри этого файла (см. «QUIZ_DATA» ниже).</p>
+      </div>
+
+      <div class="card">
+        <h3 style="margin:0 0 8px 0">Ваши сохранённые результаты</h3>
+        <div id="historyBox" class="muted">Пока пусто. Пройдите игру, чтобы увидеть результаты.</div>
+        <div style="margin-top:10px;display:flex;gap:10px;flex-wrap:wrap">
+          <button class="btn ghost" id="exportBtn">Выгрузить результаты (.json)</button>
+          <button class="btn ghost" id="resetBtn">Сбросить локальные данные</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ЭКРАН 2: сам раздел -->
+    <section id="screen-quiz" class="screen">
+      <div class="card" id="quizHeader">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap">
+          <div>
+            <div class="badge" id="sectionBadge">Раздел</div>
+            <h2 id="sectionTitle" style="margin:.4rem 0 0 0">...</h2>
+            <div class="muted" id="playerLine"></div>
+          </div>
+          <button class="btn ghost" id="backToSections">← к разделам</button>
+        </div>
+        <div style="margin-top:12px">
+          <div class="progress" aria-label="Прогресс по разделу"><span id="progressBar" style="width:0%"></span></div>
+          <div class="muted" id="progressText" style="margin-top:6px">0 из 0</div>
+        </div>
+      </div>
+
+      <div id="questionsHost"></div>
+
+      <div class="card">
+        <div class="result-box">
+          <div>
+            <div id="sectionScoreLine"><strong>Баллы за раздел:</strong> 0</div>
+            <div class="muted" style="margin-top:4px">Правила подсчёта: одиночный — 1 балл; множественный — 0.5 за каждый правильный, 1 балл при полностью верном.</div>
+          </div>
+          <div style="display:flex;gap:10px;flex-wrap:wrap">
+            <button class="btn" id="finishSectionBtn">Завершить раздел</button>
+            <button class="btn secondary" id="nextSectionBtn" style="display:none">Следующий раздел →</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ЭКРАН 3: общий итог -->
+    <section id="screen-summary" class="screen">
+      <div class="card">
+        <h2 style="margin-top:0">Итоги</h2>
+        <div id="totalsBox"></div>
+        <div id="winnerBox" class="winner" style="display:none;margin-top:12px">🎉 Вы — победитель! Заберите приз!</div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px">
+          <button class="btn" id="goHome">На главную</button>
+          <button class="btn ghost" id="exportBtn2">Выгрузить результаты (.json)</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ====== ДАННЫЕ ВИКТОРИНЫ (ОТРЕДАКТИРУЙТЕ ПОД СЕБЯ) ======
+       Разделы и вопросы ниже — ПРИМЕР. Замените тексты и медиа
+       на ваши из папки. Для GitHub Pages поместите файлы в репозиторий:
+       images/... и videos/... и поправьте пути в полях media.
+       Вопросы С ОДНИМ правильным ответом: type: "single"
+       С несколькими правильными: type: "multi" (пометьте correct:true у нужных опций)
+  -->
+  <script>
+    const QUIZ_DATA = {
+      version: "1.0.0",
+      consiliumUrl: "#", // если есть отдельная игра «Консилиум», вставьте сюда ссылку (GitHub Pages другой репы)
+      sections: [
+        {
+          id: "art-gyne",
+          title: "Вспомогательные репродуктивные технологии и гинекология",
+          coverImage: "images/section_art.jpg",
+          questions: [
+            {
+              id: "q1",
+              type: "single",
+              text: "Какой гинекологический подход показан на прегравидарном этапе при выраженной ИЦН в анамнезе и укороченной шейке после конизации?",
+              media: { image: "images/art_q1.jpg", alt: "Иллюстрация к вопросу (замените файл)" },
+              options: [
+                { text: "Диагностическая гистероскопия", correct: false },
+                { text: "Диагностическая лапароскопия", correct: false },
+                { text: "Лапароскопический серкляж", correct: true },  // ✅
+                { text: "Вмешательств не требуется", correct: false }
+              ]
+            },
+            {
+              id: "q2",
+              type: "multi",
+              text: "Отметьте верные утверждения о предгравидарной подготовке после ЭКО:",
+              media: { video: "videos/art_q2.mp4", poster: "images/art_q2_poster.jpg", alt: "Видео (замените файл)" },
+              options: [
+                { text: "Оценка состояния эндометрия может включать гистероскопию при показаниях", correct: true }, // 0.5
+                { text: "Скрининг на инфекции передающиеся половым путём не требуется", correct: false },
+                { text: "Коррекция дефицитов (витамин D, железо) рассматривается по показаниям", correct: true }, // 0.5 -> при полноте = 1
+                { text: "Оценка факторов риска ПОНРП не имеет смысла", correct: false }
+              ]
+            }
+          ]
+        },
+        {
+          id: "obstetrics",
+          title: "Акушерство",
+          coverImage: "images/section_ob.jpg",
+          questions: [
+            {
+              id: "q3",
+              type: "single",
+              text: "При ПОНРП в I периоде родов в анамнезе, что важнее на этапе планирования следующей беременности?",
+              options: [
+                { text: "Игнорировать факторы риска, это разовый случай", correct: false },
+                { text: "Коморбидный аудит факторов риска и план наблюдения", correct: true }, // ✅
+                { text: "Исключительно пренатальные витамины без другой подготовки", correct: false }
+              ]
+            },
+            {
+              id: "q4",
+              type: "multi",
+              text: "Выберите профилактические меры при риске ИЦН в следующую беременность:",
+              options: [
+                { text: "Ранняя стратификация риска и наблюдение", correct: true }, // 0.5
+                { text: "Серкляж/пессарий по показаниям", correct: true },          // 0.5 → при полноте = 1
+                { text: "Исключение всех обследований", correct: false }
+              ]
+            }
+          ]
+        }
+      ]
+    };
+  </script>
+
+  <!-- ====== ЛОГИКА ИНТЕРАКТИВНОЙ ИГРЫ ====== -->
+  <script>
+    const $ = (sel, root=document) => root.querySelector(sel);
+    const $$ = (sel, root=document) => Array.from(root.querySelectorAll(sel));
+
+    // КЛЮЧИ ДЛЯ localStorage
+    const LS_KEY_RESULTS = "md-quiz-results-v1"; // массив попыток
+    const LS_KEY_PLAYER = "md-quiz-player-v1";   // {name, dept}
+
+    const elModal = $("#rulesModal");
+    const elStartBtn = $("#startBtn");
+    const elAgree = $("#agree");
+    const elName = $("#playerName");
+    const elDept = $("#playerDept");
+
+    const elSections = $("#screen-sections");
+    const elQuiz = $("#screen-quiz");
+    const elSummary = $("#screen-summary");
+
+    const elSectionsGrid = $("#sectionsGrid");
+    const elConsilium = $("#consiliumLink");
+    const elHistory = $("#historyBox");
+
+    const elBack = $("#backToSections");
+    const elSectionBadge = $("#sectionBadge");
+    const elSectionTitle = $("#sectionTitle");
+    const elPlayerLine = $("#playerLine");
+    const elQHost = $("#questionsHost");
+    const elProgressBar = $("#progressBar");
+    const elProgressText = $("#progressText");
+    const elSectionScoreLine = $("#sectionScoreLine");
+    const elFinishSection = $("#finishSectionBtn");
+    const elNextSection = $("#nextSectionBtn");
+
+    const elTotalsBox = $("#totalsBox");
+    const elWinnerBox = $("#winnerBox");
+
+    const elStartFull = $("#startFullBtn");
+    const elExport1 = $("#exportBtn");
+    const elExport2 = $("#exportBtn2");
+    const elReset = $("#resetBtn");
+    const elGoHome = $("#goHome");
+
+    let runMode = "single"; // 'single' | 'full'
+    let currentSectionIndex = 0;
+    let sectionState = null; // будет объект состояния текущего раздела
+    let sessionResults = []; // результаты по разделам в рамках прохождения
+
+    // ===== ИНИЦИАЛИЗАЦИЯ =====
+    (function init(){
+      // восстановим игрока
+      try{
+        const saved = JSON.parse(localStorage.getItem(LS_KEY_PLAYER) || "null");
+        if(saved && saved.name){ elName.value = saved.name; }
+        if(saved && saved.dept){ elDept.value = saved.dept; }
+      }catch{}
+      // заблокировать старт до согласия и имени
+      const validateModal = () => {
+        const ok = !!elAgree.checked && elName.value.trim().length>1;
+        elStartBtn.disabled = !ok;
+      };
+      ["input","change"].forEach(ev=>{
+        elAgree.addEventListener(ev, validateModal);
+        elName.addEventListener(ev, validateModal);
+      });
+      elStartBtn.addEventListener("click", ()=>{
+        // сохраним игрока
+        const player = { name: elName.value.trim(), dept: elDept.value.trim() };
+        localStorage.setItem(LS_KEY_PLAYER, JSON.stringify(player));
+        elModal.style.display = "none";
+      });
+
+      // слинкуем консилиум
+      if(QUIZ_DATA.consiliumUrl && QUIZ_DATA.consiliumUrl !== "#"){
+        elConsilium.href = QUIZ_DATA.consiliumUrl;
+      }else{
+        elConsilium.addEventListener("click", (e)=>{
+          e.preventDefault();
+          alert("Консилиум — отдельная игра на 5 этапов. Добавьте ссылку в поле consiliumUrl в блоке QUIZ_DATA.");
+        });
+      }
+
+      // построим карточки разделов
+      renderSections();
+
+      // история
+      renderHistory();
+
+      // кнопки
+      elStartFull.addEventListener("click", ()=>{
+        runMode = "full";
+        sessionResults = [];
+        startSection(0);
+      });
+      elBack.addEventListener("click", ()=>switchScreen("sections"));
+      elFinishSection.addEventListener("click", finishSection);
+      elNextSection.addEventListener("click", ()=>{
+        const next = currentSectionIndex + 1;
+        if(next < QUIZ_DATA.sections.length){
+          startSection(next);
+        }else{
+          // в режиме full завершили все разделы
+          showSummary();
+        }
+      });
+      elExport1.addEventListener("click", exportResults);
+      elExport2.addEventListener("click", exportResults);
+      elReset.addEventListener("click", ()=>{
+        if(confirm("Сбросить сохранённые результаты и профиль?")){
+          localStorage.removeItem(LS_KEY_RESULTS);
+          localStorage.removeItem(LS_KEY_PLAYER);
+          renderHistory();
+          alert("Данные сброшены. Обновите страницу при необходимости.");
+        }
+      });
+      elGoHome.addEventListener("click", ()=>switchScreen("sections"));
+
+      // доступ к секции по клику карточки
+      elSectionsGrid.addEventListener("click", (e)=>{
+        const card = e.target.closest("[data-section-index]");
+        if(!card) return;
+        runMode = "single";
+        sessionResults = [];
+        startSection(parseInt(card.dataset.sectionIndex,10));
+      });
+    })();
+
+    function renderSections(){
+      elSectionsGrid.innerHTML = "";
+      QUIZ_DATA.sections.forEach((s, idx)=>{
+        const div = document.createElement("div");
+        div.className = "section-card";
+        div.tabIndex = 0;
+        div.setAttribute("role","button");
+        div.setAttribute("data-section-index", String(idx));
+        div.innerHTML = `
+          <img src="${escapeHtml(s.coverImage||"")}" alt="Обложка: ${escapeHtml(s.title)}" onerror="this.style.display='none'">
+          <div class="body">
+            <span class="badge">Раздел</span>
+            <h3 style="margin:.4rem 0 .2rem 0">${escapeHtml(s.title)}</h3>
+            <div class="muted">${s.questions.length} вопрос(ов)</div>
+          </div>
+        `;
+        elSectionsGrid.appendChild(div);
+      });
+    }
+
+    function renderHistory(){
+      const player = readPlayer();
+      const rows = readResults();
+      if(!rows.length){
+        elHistory.textContent = "Пока нет сохранённых попыток.";
+        return;
+      }
+      const name = player?.name ? ` (${escapeHtml(player.name)})` : "";
+      elHistory.innerHTML = `
+        <div>Последние попытки${name}:</div>
+        <ul style="margin:.4rem 0 .2rem 1rem">
+          ${rows.slice(-5).reverse().map(r=>{
+            const dt = new Date(r.timestamp);
+            const pass = r.total>=5 ? " — <b style='color:var(--ok)'>победа</b>" : "";
+            return `<li>${dt.toLocaleString()} — <b>${r.total.toFixed(2)}</b> баллов${pass}</li>`;
+          }).join("")}
+        </ul>
+      `;
+    }
+
+    function startSection(sectionIndex){
+      currentSectionIndex = sectionIndex;
+      sectionState = buildSectionState(QUIZ_DATA.sections[sectionIndex]);
+      switchScreen("quiz");
+      renderSection();
+    }
+
+    function buildSectionState(section){
+      const answered = {}; // id вопроса -> данные выбора
+      const scores = {};   // id вопроса -> начисленные баллы
+      return { section, answered, scores, finished:false };
+    }
+
+    function renderSection(){
+      const player = readPlayer();
+      elSectionBadge.textContent = "Раздел";
+      elSectionTitle.textContent = sectionState.section.title;
+      elPlayerLine.textContent = player?.name ? `Участник: ${player.name}${player.dept? " • " + player.dept : ""}` : "";
+
+      const totalQ = sectionState.section.questions.length;
+      updateProgress();
+
+      // вопросы
+      elQHost.innerHTML = "";
+      sectionState.section.questions.forEach((q, idx)=>{
+        const qEl = document.createElement("div");
+        qEl.className = "question";
+        const typeLabel = q.type === "multi" ? "Несколько ответов" : "Один ответ";
+        qEl.innerHTML = `
+          <div class="q-meta"><span class="pill">${typeLabel}</span><span class="muted">Вопрос ${idx+1}/${totalQ}</span></div>
+          <h3>${escapeHtml(q.text)}</h3>
+          ${renderMedia(q.media)}
+          <div class="options">
+            ${q.options.map((opt, oi)=>{
+              const name = \`q_\${q.id}\`;
+              const inputType = q.type === "multi" ? "checkbox" : "radio";
+              const inputId = \`q_\${q.id}_\${oi}\`;
+              return \`
+                <label class="option" data-qid="\${q.id}" data-oi="\${oi}">
+                  <input id="\${inputId}" type="\${inputType}" name="\${name}" />
+                  <span>\${escapeHtml(opt.text)}</span>
+                </label>
+              \`;
+            }).join("")}
+          </div>
+          <div class="q-feedback" id="fb_${q.id}" aria-live="polite"></div>
+        `;
+        elQHost.appendChild(qEl);
+      });
+
+      // немедленная обратная связь
+      elQHost.addEventListener("change", onOptionChange);
+      elFinishSection.style.display = "inline-block";
+      elNextSection.style.display = "none";
+      updateSectionScoreLine();
+    }
+
+    function renderMedia(media){
+      if(!media) return "";
+      if(media.image){
+        return `<div style="margin:8px 0 4px 0"><img src="${escapeHtml(media.image)}" alt="${escapeHtml(media.alt||"Изображение к вопросу")}" onerror="this.style.display='none'"></div>`;
+      }
+      if(media.video){
+        const poster = media.poster ? \` poster="\${escapeHtml(media.poster)}"\` : "";
+        return `<div style="margin:8px 0 4px 0"><video ${poster} controls preload="metadata"><source src="${escapeHtml(media.video)}" type="video/mp4">Ваш браузер не поддерживает видео.</video></div>`;
+      }
+      return "";
+    }
+
+    function onOptionChange(e){
+      const label = e.target.closest(".option");
+      if(!label) return;
+      const qid = label.getAttribute("data-qid");
+      const q = sectionState.section.questions.find(x=>x.id===qid);
+      if(!q) return;
+      // снимем визуальные маркеры
+      $$(".option", label.parentElement).forEach(optEl => { optEl.classList.remove("correct","wrong"); });
+
+      const selectedIdx = getSelectedOptionIndexes(q);
+      const { score, isFullyCorrect } = scoreQuestion(q, selectedIdx);
+      sectionState.answered[qid] = selectedIdx;
+      sectionState.scores[qid] = score;
+
+      // немедленная обратная связь
+      const fb = document.getElementById(`fb_${qid}`);
+      if(q.type === "single"){
+        const chosen = typeof selectedIdx[0] === "number" ? selectedIdx[0] : -1;
+        if(chosen>=0){
+          if(q.options[chosen].correct){
+            fb.textContent = "Верно";
+            fb.className = "q-feedback ok";
+            highlightOption(label, true);
+          }else{
+            fb.textContent = "Неверно";
+            fb.className = "q-feedback bad";
+            highlightOption(label, false);
+            // выделим правильный, чтобы пользователь учился
+            const ri = q.options.findIndex(o=>o.correct);
+            if(ri>=0){
+              const rightEl = label.parentElement.querySelector(`[data-oi="${ri}"]`);
+              if(rightEl) rightEl.classList.add("correct");
+            }
+          }
+        }else{
+          fb.textContent = "";
+          fb.className = "q-feedback";
+        }
+      }else{
+        const totalRight = q.options.filter(o=>o.correct).length;
+        const pickedRight = selectedIdx.filter(i=>q.options[i]?.correct).length;
+        fb.textContent = isFullyCorrect ? "Полностью верно" : `Отмечено правильных: ${pickedRight}/${totalRight}`;
+        fb.className = isFullyCorrect ? "q-feedback ok" : "q-feedback";
+        // подсветим отмеченные
+        selectedIdx.forEach(i=>{
+          const el = label.parentElement.querySelector(`[data-oi="${i}"]`);
+          if(!el) return;
+          if(q.options[i].correct) el.classList.add("correct"); else el.classList.add("wrong");
+        });
+      }
+
+      updateProgress();
+      updateSectionScoreLine();
+    }
+
+    function getSelectedOptionIndexes(question){
+      const opts = $$(".option", findQuestionEl(question.id));
+      const arr = [];
+      opts.forEach((optEl, idx)=>{
+        const input = $("input", optEl);
+        if(input && input.checked){ arr.push(idx); }
+      });
+      return arr;
+    }
+
+    function scoreQuestion(q, selectedIdx){
+      if(q.type === "single"){
+        const chosen = selectedIdx[0];
+        if(typeof chosen === "number" && q.options[chosen]?.correct) return { score:1, isFullyCorrect:true };
+        return { score:0, isFullyCorrect:false };
+      }else{
+        const rightIdx = q.options.map((o,i)=>o.correct?i:null).filter(v=>v!==null);
+        const setSel = new Set(selectedIdx);
+        const setRight = new Set(rightIdx);
+        const pickedRight = selectedIdx.filter(i=>setRight.has(i)).length;
+        const fully = pickedRight===rightIdx.length && selectedIdx.every(i=>setRight.has(i));
+        let s = pickedRight * 0.5;
+        if(fully) s = 1; // при полностью верном ответе — 1 балл
+        if(s>1) s = 1;   // на всякий случай ограничим
+        return { score:s, isFullyCorrect:fully };
+      }
+    }
+
+    function findQuestionEl(qid){
+      return $(`.question .options [data-qid="${qid}"]`)?.closest(".question") || null;
+    }
+
+    function highlightOption(optionEl, isRight){
+      optionEl.classList.add(isRight? "correct":"wrong");
+    }
+
+    function updateProgress(){
+      const total = sectionState.section.questions.length;
+      const answeredCount = Object.keys(sectionState.answered).length;
+      const pct = Math.round((answeredCount/Math.max(1,total))*100);
+      elProgressBar.style.width = pct + "%";
+      elProgressText.textContent = `${answeredCount} из ${total}`;
+    }
+
+    function updateSectionScoreLine(){
+      const sum = Object.values(sectionState.scores).reduce((a,b)=>a+(b||0),0);
+      elSectionScoreLine.innerHTML = `<strong>Баллы за раздел:</strong> ${sum.toFixed(2)}`;
+    }
+
+    function finishSection(){
+      // зафиксируем результат раздела
+      const sectionId = sectionState.section.id;
+      const sectionTitle = sectionState.section.title;
+      const totalQ = sectionState.section.questions.length;
+      const sum = Object.values(sectionState.scores).reduce((a,b)=>a+(b||0),0);
+      const answers = {}; // сохраним индексы
+      sectionState.section.questions.forEach(q=>{
+        answers[q.id] = sectionState.answered[q.id] || [];
+      });
+
+      sessionResults.push({ sectionId, sectionTitle, questions: totalQ, score: sum, answers });
+
+      // если режим single — показать сразу общий итог, иначе предложить следующий раздел
+      if(runMode === "single"){
+        showSummary();
+      }else{
+        elFinishSection.style.display = "none";
+        const hasNext = (currentSectionIndex+1) < QUIZ_DATA.sections.length;
+        if(hasNext){
+          elNextSection.style.display = "inline-block";
+        }else{
+          showSummary();
+        }
+      }
+    }
+
+    function showSummary(){
+      switchScreen("summary");
+      const total = sessionResults.reduce((a,r)=>a+r.score,0);
+      const player = readPlayer();
+      const ts = new Date().toISOString();
+
+      // сохраним в localStorage историю
+      const row = {
+        timestamp: ts,
+        playerName: player?.name || "",
+        playerDept: player?.dept || "",
+        sections: sessionResults,
+        total: total
+      };
+      const hist = readResults();
+      hist.push(row);
+      localStorage.setItem(LS_KEY_RESULTS, JSON.stringify(hist));
+      renderHistory();
+
+      // отрисовать итог
+      elTotalsBox.innerHTML = `
+        <div class="card" style="margin:0">
+          <div><strong>Участник:</strong> ${escapeHtml(player?.name||"")} ${player?.dept? " • "+escapeHtml(player.dept):""}</div>
+          <div style="margin-top:8px"><strong>Общий балл:</strong> ${total.toFixed(2)}</div>
+          <div style="margin-top:10px" class="grid">
+            ${sessionResults.map(r=>{
+              return `<div class="card" style="margin:0">
+                <div><b>${escapeHtml(r.sectionTitle)}</b></div>
+                <div class="muted">${r.questions} вопрос(ов)</div>
+                <div><b>Баллы:</b> ${r.score.toFixed(2)}</div>
+              </div>`;
+            }).join("")}
+          </div>
+        </div>
+      `;
+
+      // победитель?
+      if(total >= 5){
+        elWinnerBox.style.display = "block";
+      }else{
+        elWinnerBox.style.display = "none";
+      }
+    }
+
+    function switchScreen(name){
+      [elSections, elQuiz, elSummary].forEach(el=>el.classList.remove("active"));
+      if(name==="sections") elSections.classList.add("active");
+      if(name==="quiz") elQuiz.classList.add("active");
+      if(name==="summary") elSummary.classList.add("active");
+    }
+
+    function readResults(){
+      try{
+        return JSON.parse(localStorage.getItem(LS_KEY_RESULTS)||"[]");
+      }catch{ return []; }
+    }
+    function readPlayer(){
+      try{
+        return JSON.parse(localStorage.getItem(LS_KEY_PLAYER)||"null");
+      }catch{ return null; }
+    }
+
+    // экспорт результатов в JSON
+    function exportResults(){
+      const data = {
+        exportedAt: new Date().toISOString(),
+        player: readPlayer(),
+        attempts: readResults()
+      };
+      const blob = new Blob([JSON.stringify(data,null,2)], {type:"application/json"});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "quiz_results.json";
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    // ДОПОЛНИТЕЛЬНО: быстрый старт конкретного раздела (кнопки-«карточки»)
+    // (обработчик на grid уже навешан в init)
+
+    // Утилита
+    function escapeHtml(s){
+      if(s===undefined||s===null) return "";
+      return String(s)
+        .replaceAll("&","&amp;")
+        .replaceAll("<","&lt;")
+        .replaceAll(">","&gt;")
+        .replaceAll('"',"&quot;")
+        .replaceAll("'","&#039;");
+    }
+  </script>
+
+  <!-- ПОДСКАЗКИ ПО ЗАМЕНЕ КОНТЕНТА (останутся в HTML как памятка):
+    1) Положите ваши медиа в репозиторий:
+       - images/logo.png — логотип
+       - images/section_art.jpg, images/section_ob.jpg — обложки разделов
+       - images/... и videos/... — файлы для вопросов
+    2) Отредактируйте блок QUIZ_DATA:
+       - titles/тексты вопросов
+       - options[] с пометкой correct:true у верных ответов
+       - type: "single" (один правильный) или "multi" (несколько)
+    3) Опубликуйте через GitHub Pages: Settings → Pages → Source: main / (root)
+    4) Сообщение победителю включается при сумме ≥ 5 баллов.
+    5) Консилиум — отдельная игра; добавьте ссылку в QUIZ_DATA.consiliumUrl.
+  -->
+</body>
+</html>
