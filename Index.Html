@@ -1,0 +1,779 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Клинический госпиталь "Мать и Дитя" Тюмень - Викторина</title>
+    <style>
+        :root {
+            --primary: #00a0e3;
+            --secondary: #8dc63f;
+            --accent: #d4145a;
+            --light: #f4f9fc;
+            --dark: #333333;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Arial', sans-serif;
+        }
+        
+        body {
+            background-color: var(--light);
+            color: var(--dark);
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            background: linear-gradient(135deg, var(--primary), #0077b6);
+            color: white;
+            padding: 20px 0;
+            text-align: center;
+            border-radius: 0 0 20px 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 15px;
+        }
+        
+        .logo-circle {
+            width: 80px;
+            height: 80px;
+            background-color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .logo-text {
+            font-size: 24px;
+            font-weight: bold;
+            color: white;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
+        }
+        
+        h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            font-size: 18px;
+            opacity: 0.9;
+        }
+        
+        .main-menu {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin: 40px 0;
+            flex-wrap: wrap;
+        }
+        
+        .menu-card {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            width: 280px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+            cursor: pointer;
+        }
+        
+        .menu-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 20px rgba(0, 0, 0, 0.15);
+        }
+        
+        .menu-image {
+            height: 160px;
+            overflow: hidden;
+        }
+        
+        .menu-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .menu-content {
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .menu-content h2 {
+            color: var(--primary);
+            margin-bottom: 10px;
+            font-size: 20px;
+        }
+        
+        .menu-content p {
+            color: var(--dark);
+            font-size: 14px;
+            margin-bottom: 15px;
+        }
+        
+        .btn {
+            display: inline-block;
+            background-color: var(--primary);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 30px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: background-color 0.3s;
+            border: none;
+            cursor: pointer;
+        }
+        
+        .btn:hover {
+            background-color: #0080c0;
+        }
+        
+        .btn-secondary {
+            background-color: var(--secondary);
+        }
+        
+        .btn-secondary:hover {
+            background-color: #7cb52c;
+        }
+        
+        .registration-form {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+            margin: 30px 0;
+        }
+        
+        .form-title {
+            text-align: center;
+            color: var(--primary);
+            margin-bottom: 25px;
+            font-size: 24px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: var(--dark);
+        }
+        
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+        
+        .form-group .checkbox-group {
+            display: flex;
+            align-items: center;
+            margin-top: 10px;
+        }
+        
+        .form-group .checkbox-group input {
+            width: auto;
+            margin-right: 10px;
+        }
+        
+        .required {
+            color: var(--accent);
+        }
+        
+        .quiz-container {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+            margin: 30px 0;
+        }
+        
+        .question {
+            margin-bottom: 25px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .question h3 {
+            color: var(--primary);
+            margin-bottom: 15px;
+            font-size: 20px;
+        }
+        
+        .options {
+            display: grid;
+            gap: 12px;
+        }
+        
+        .option {
+            display: flex;
+            align-items: center;
+        }
+        
+        .option input {
+            margin-right: 10px;
+        }
+        
+        .option label {
+            cursor: pointer;
+        }
+        
+        .case-study {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+            margin: 30px 0;
+        }
+        
+        .case-header {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+        
+        .case-header h2 {
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+        
+        .case-stage {
+            margin-bottom: 30px;
+            padding: 20px;
+            background-color: #f9f9f9;
+            border-radius: 10px;
+            border-left: 5px solid var(--primary);
+        }
+        
+        .case-stage h3 {
+            color: var(--primary);
+            margin-bottom: 15px;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .score-display {
+            text-align: center;
+            font-size: 20px;
+            font-weight: bold;
+            color: var(--primary);
+            margin: 20px 0;
+        }
+        
+        .victory-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        
+        .modal-content {
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            text-align: center;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            animation: popIn 0.5s;
+        }
+        
+        @keyframes popIn {
+            0% { transform: scale(0.8); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        
+        .modal-content h2 {
+            color: var(--accent);
+            margin-bottom: 20px;
+            font-size: 28px;
+        }
+        
+        .modal-content p {
+            margin-bottom: 25px;
+            font-size: 18px;
+        }
+        
+        footer {
+            text-align: center;
+            padding: 20px;
+            margin-top: 40px;
+            color: var(--dark);
+            font-size: 14px;
+            border-top: 1px solid #ddd;
+        }
+        
+        @media (max-width: 768px) {
+            .main-menu {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .menu-card {
+                width: 100%;
+                max-width: 350px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="logo">
+                <div class="logo-circle">
+                    <svg width="40" height="40" viewBox="0 0 24 24" fill="#00a0e3">
+                        <path d="M12 2C13.1 2 14 2.9 14 4C14 5.1 13.1 6 12 6C10.9 6 10 5.1 10 4C10 2.9 10.9 2 12 2ZM21 9V7L15 5.5V7H9V5.5L3 7V9L10 11V13H14V11L21 9ZM14 16V19H10V16H8V23H16V16H14Z"/>
+                    </svg>
+                </div>
+                <div class="logo-text">Мать и Дитя<br><span style="font-size: 18px;">Тюмень</span></div>
+            </div>
+            <h1>Медицинская викторина</h1>
+            <p class="subtitle">Проверьте свои знания и получите приз!</p>
+        </div>
+    </header>
+
+    <div class="container">
+        <section id="main-section">
+            <div class="registration-form">
+                <h2 class="form-title">Регистрация участника</h2>
+                <form id="participant-form" action="https://docs.google.com/forms/d/e/1FAIpQLSf2cQ9qw90Jpacyw51eCZvHdFn4dEAEolEwjwflBtKZ7gvKBA/formResponse" method="POST" target="hidden_iframe">
+                    <div class="form-group">
+                        <label for="fullname">Ф.И.О. <span class="required">*</span></label>
+                        <input type="text" id="fullname" name="entry.2005620554" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="city">Город <span class="required">*</span></label>
+                        <input type="text" id="city" name="entry.1045781291" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="workplace">Место работы <span class="required">*</span></label>
+                        <input type="text" id="workplace" name="entry.1065046570" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="position">Должность <span class="required">*</span></label>
+                        <input type="text" id="position" name="entry.1166974658" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Электронная почта <span class="required">*</span></label>
+                        <input type="email" id="email" name="entry.1824927963" required>
+                    </div>
+                    <div class="form-group">
+                        <p>Хотели бы вы увидеть дополнительную информацию об услугах КГ "Мать и дитя" Тюмень?</p>
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="info-request" name="entry.1234567890" value="Да">
+                            <label for="info-request">Да</label>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <p>Интересно ли вам сотрудничать с КГ "Мать и дитя" Тюмень в качестве агента?</p>
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="cooperation" name="entry.9876543210" value="Да">
+                            <label for="cooperation">Да</label>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <p class="required">* Для получения приза необходимо заполнить все обязательные поля</p>
+                    </div>
+                    <button type="button" id="start-btn" class="btn">Начать викторину</button>
+                </form>
+                <iframe name="hidden_iframe" id="hidden_iframe" style="display:none;"></iframe>
+            </div>
+
+            <div class="main-menu">
+                <div class="menu-card" id="quiz-card">
+                    <div class="menu-image">
+                        <div style="background-color: #00a0e3; height: 100%; display: flex; align-items: center; justify-content: center; color: white; font-size: 48px;">?</div>
+                    </div>
+                    <div class="menu-content">
+                        <h2>Викторина</h2>
+                        <p>Проверьте свои медицинские знания в нашей викторине с вариантами ответов</p>
+                        <button class="btn" onclick="showSection('quiz')">Начать викторину</button>
+                    </div>
+                </div>
+                
+                <div class="menu-card" id="case-card">
+                    <div class="menu-image">
+                        <div style="background-color: #8dc63f; height: 100%; display: flex; align-items: center; justify-content: center; color: white; font-size: 48px;">+</div>
+                    </div>
+                    <div class="menu-content">
+                        <h2>Клинический случай</h2>
+                        <p>Разберите реальный клинический случай и предложите решение</p>
+                        <button class="btn btn-secondary" onclick="showSection('case')">Разобрать случай</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="quiz-section" class="hidden">
+            <div class="score-display">
+                Текущий счет: <span id="quiz-score">0</span> баллов
+            </div>
+            
+            <div class="quiz-container">
+                <h2>Медицинская викторина</h2>
+                <p>Выберите один или несколько правильных ответов на вопросы</p>
+                
+                <div class="question">
+                    <h3>1. Что такое истмико-цервикальная недостаточность?</h3>
+                    <div class="options">
+                        <div class="option">
+                            <input type="checkbox" id="q1a1" name="q1" value="0.5">
+                            <label for="q1a1">Состояние, при котором шейка матки не может противостоять давлению растущего плода</label>
+                        </div>
+                        <div class="option">
+                            <input type="checkbox" id="q1a2" name="q1" value="0">
+                            <label for="q1a2">Инфекционное заболевание шейки матки</label>
+                        </div>
+                        <div class="option">
+                            <input type="checkbox" id="q1a3" name="q1" value="0.5">
+                            <label for="q1a3">Преждевременное укорочение и раскрытие шейки матки во время беременности</label>
+                        </div>
+                        <div class="option">
+                            <input type="checkbox" id="q1a4" name="q1" value="0">
+                            <label for="q1a4">Врожденная аномалия развития матки</label>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="question">
+                    <h3>2. Какие методы используются для профилактики РДС у плода при угрозе преждевременных родов?</h3>
+                    <div class="options">
+                        <div class="option">
+                            <input type="checkbox" id="q2a1" name="q2" value="0.5">
+                            <label for="q2a1">Кортикостероидная терапия</label>
+                        </div>
+                        <div class="option">
+                            <input type="checkbox" id="q2a2" name="q2" value="0">
+                            <label for="q2a2">Антибиотикотерапия</label>
+                        </div>
+                        <div class="option">
+                            <input type="checkbox" id="q2a3" name="q2" value="0.5">
+                            <label for="q2a3">Токолиз для пролонгирования беременности</label>
+                        </div>
+                        <div class="option">
+                            <input type="checkbox" id="q2a4" name="q2" value="0">
+                            <label for="q2a4">Аспиринотерапия</label>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="question">
+                    <h3>3. Что такое ПОНРП?</h3>
+                    <div class="options">
+                        <div class="option">
+                            <input type="radio" id="q3a1" name="q3" value="0">
+                            <label for="q3a1">Преждевременное отхождение нормальных родовых вод</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" id="q3a2" name="q3" value="1">
+                            <label for="q3a2">Преждевременная отслойка нормально расположенной плаценты</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" id="q3a3" name="q3" value="0">
+                            <label for="q3a3">Послеродовое нарушение репаративных процессов</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" id="q3a4" name="q3" value="0">
+                            <label for="q3a4">Поздний onset неонатальных респираторных проблем</label>
+                        </div>
+                    </div>
+                </div>
+                
+                <button class="btn" onclick="calculateQuizScore()">Завершить викторину</button>
+            </div>
+            
+            <button class="btn" onclick="showSection('main')">Вернуться на главную</button>
+        </section>
+
+        <section id="case-section" class="hidden">
+            <div class="score-display">
+                Текущий счет: <span id="case-score">0</span> баллов
+            </div>
+            
+            <div class="case-study">
+                <div class="case-header">
+                    <h2>Клинический случай</h2>
+                    <p>Пациентка А, 35 лет. Планирует вторую беременность.</p>
+                </div>
+                
+                <div class="case-stage">
+                    <h3>Этап 1. Прегравидарная подготовка</h3>
+                    <p>Анамнез прошлой беременности: Беременность наступила после ЭКО (по причине бесплодия неясного генеза). Осложнилась истмико-цервикальной недостаточностью, по поводу чего был выполнен цервикальный серкляж. На 33 неделе начались спонтанные преждевременные роды, в I периоде которых произошла ПОНРП. Выполнено экстренное кесарево сечение.</p>
+                    <p><strong>Какое гинекологическое вмешательство рекомендовано на прегравидарном этапе?</strong></p>
+                    <div class="options">
+                        <div class="option">
+                            <input type="radio" id="stage1a1" name="stage1" value="0">
+                            <label for="stage1a1">Диагностическая гистероскопия</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" id="stage1a2" name="stage1" value="0">
+                            <label for="stage1a2">Диагностическая лапароскопия</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" id="stage1a3" name="stage1" value="1">
+                            <label for="stage1a3">Лапароскопический серкляж</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" id="stage1a4" name="stage1" value="0">
+                            <label for="stage1a4">Вмешательств не требуется</label>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="case-stage">
+                    <h3>Этап 2. Диагностика осложнений беременности</h3>
+                    <p>Беременность наступила после ЭКО. На 1–2 УЗ-скринингах диагностировано предлежание плаценты, имеются УЗ-признаки врастания плаценты в рубец на матке.</p>
+                    <p><strong>Какой дополняющий метод диагностики выбрать?</strong></p>
+                    <div class="options">
+                        <div class="option">
+                            <input type="radio" id="stage2a1" name="stage2" value="1">
+                            <label for="stage2a1">МРТ</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" id="stage2a2" name="stage2" value="0">
+                            <label for="stage2a2">КТГ</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" id="stage2a3" name="stage2" value="0">
+                            <label for="stage2a3">КТ</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" id="stage2a4" name="stage2" value="0">
+                            <label for="stage2a4">Лапароскопия</label>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="case-stage">
+                    <h3>Этап 3. Осложнение в III триместре</h3>
+                    <p>В сроке 30 недель беременности — эпизод тянущих болей внизу живота, сопровождающийся скудными кровянистыми выделениями. Пациентка была госпитализирована в стационар III уровня. Проведён токолиз, курс профилактики РДС плода. По прошествии терапии жалоб и признаков продолжающегося кровотечения нет, показаний к экстренному кесареву сечению не выявлено.</p>
+                    <p><strong>Оптимальный срок родоразрешения в данной клинической ситуации:</strong></p>
+                    <div class="options">
+                        <div class="option">
+                            <input type="radio" id="stage3a1" name="stage3" value="0">
+                            <label for="stage3a1">Сразу после профилактики РДС плода</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" id="stage3a2" name="stage3" value="1">
+                            <label for="stage3a2">34–36 недель</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" id="stage3a3" name="stage3" value="0">
+                            <label for="stage3a3">36+ недель беременности</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" id="stage3a4" name="stage3" value="0">
+                            <label for="stage3a4">В доношенном сроке беременности</label>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="case-stage">
+                    <h3>Этап 4. Хирургическая тактика</h3>
+                    <p>Пациентка планирует сохранение фертильности.</p>
+                    <p><strong>Какую операционную тактику выбрать?</strong></p>
+                    <div class="options">
+                        <div class="option">
+                            <input type="radio" id="stage4a1" name="stage4" value="1">
+                            <label for="stage4a1">Органосохраняющая операция</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" id="stage4a2" name="stage4" value="0">
+                            <label for="stage4a2">Гистерэктомия</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" id="stage4a3" name="stage4" value="0">
+                            <label for="stage4a3">Оставление плаценты in situ с отсроченной гистерэктомией</label>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="case-stage">
+                    <h3>Этап 5. Хирургический гемостаз</h3>
+                    <p><strong>Какие методы хирургического гемостаза предпочтительнее?</strong></p>
+                    <div class="options">
+                        <div class="option">
+                            <input type="checkbox" id="stage5a1" name="stage5" value="3">
+                            <label for="stage5a1">Эндоваскулярные методы (временная баллонная окклюзия общих подвздошных артерий/аорты)</label>
+                        </div>
+                        <div class="option">
+                            <input type="checkbox" id="stage5a2" name="stage5" value="1">
+                            <label for="stage5a2">Деваскуляризация матки (перевязка маточных артерий, перевязка/временная окклюзия подвздошных артерий)</label>
+                        </div>
+                        <div class="option">
+                            <input type="checkbox" id="stage5a3" name="stage5" value="1">
+                            <label for="stage5a3">Компрессионный гемостаз (турникеты, компрессионные швы, баллонная тампонада)</label>
+                        </div>
+                    </div>
+                </div>
+                
+                <button class="btn" onclick="calculateCaseScore()">Завершить клинический случай</button>
+            </div>
+            
+            <button class="btn" onclick="showSection('main')">Вернуться на главную</button>
+        </section>
+    </div>
+
+    <div id="victory-modal" class="victory-modal hidden">
+        <div class="modal-content">
+            <h2>Поздравляем!</h2>
+            <p>Вы набрали 5 и более баллов и победили в викторине!</p>
+            <p>Заберите ваш приз!</p>
+            <button class="btn" onclick="hideVictoryModal()">Отлично!</button>
+        </div>
+    </div>
+
+    <footer>
+        <div class="container">
+            <p>Клинический госпиталь "Мать и Дитя" Тюмень © 2023</p>
+            <p>Все права защищены</p>
+        </div>
+    </footer>
+
+    <script>
+        let totalScore = 0;
+        
+        function showSection(sectionId) {
+            document.getElementById('main-section').classList.add('hidden');
+            document.getElementById('quiz-section').classList.add('hidden');
+            document.getElementById('case-section').classList.add('hidden');
+            
+            document.getElementById(sectionId + '-section').classList.remove('hidden');
+            
+            updateScoreDisplay();
+        }
+        
+        function calculateQuizScore() {
+            let score = 0;
+            
+            // Question 1
+            const q1Answers = document.querySelectorAll('input[name="q1"]:checked');
+            let q1Score = 0;
+            q1Answers.forEach(answer => {
+                q1Score += parseFloat(answer.value);
+            });
+            score += Math.min(q1Score, 1); // Cap at 1 point for question 1
+            
+            // Question 2
+            const q2Answers = document.querySelectorAll('input[name="q2"]:checked');
+            let q2Score = 0;
+            q2Answers.forEach(answer => {
+                q2Score += parseFloat(answer.value);
+            });
+            score += Math.min(q2Score, 1); // Cap at 1 point for question 2
+            
+            // Question 3
+            const q3Answer = document.querySelector('input[name="q3"]:checked');
+            if (q3Answer) {
+                score += parseFloat(q3Answer.value);
+            }
+            
+            totalScore += score;
+            updateScoreDisplay();
+            checkVictory();
+            
+            alert(`Вы набрали ${score} баллов в викторине! Общий счет: ${totalScore}`);
+        }
+        
+        function calculateCaseScore() {
+            let score = 0;
+            
+            // Stage 1
+            const stage1Answer = document.querySelector('input[name="stage1"]:checked');
+            if (stage1Answer) {
+                score += parseFloat(stage1Answer.value);
+            }
+            
+            // Stage 2
+            const stage2Answer = document.querySelector('input[name="stage2"]:checked');
+            if (stage2Answer) {
+                score += parseFloat(stage2Answer.value);
+            }
+            
+            // Stage 3
+            const stage3Answer = document.querySelector('input[name="stage3"]:checked');
+            if (stage3Answer) {
+                score += parseFloat(stage3Answer.value);
+            }
+            
+            // Stage 4
+            const stage4Answer = document.querySelector('input[name="stage4"]:checked');
+            if (stage4Answer) {
+                score += parseFloat(stage4Answer.value);
+            }
+            
+            // Stage 5
+            const stage5Answers = document.querySelectorAll('input[name="stage5"]:checked');
+            let stage5Score = 0;
+            stage5Answers.forEach(answer => {
+                stage5Score += parseFloat(answer.value);
+            });
+            score += Math.min(stage5Score, 5); // Cap at 5 points for question 5
+            
+            totalScore += score;
+            updateScoreDisplay();
+            checkVictory();
+            
+            alert(`Вы набрали ${score} баллов за клинический случай! Общий счет: ${totalScore}`);
+        }
+        
+        function updateScoreDisplay() {
+            document.getElementById('quiz-score').textContent = totalScore;
+            document.getElementById('case-score').textContent = totalScore;
+        }
+        
+        function checkVictory() {
+            if (totalScore >= 5) {
+                document.getElementById('victory-modal').classList.remove('hidden');
+            }
+        }
+        
+        function hideVictoryModal() {
+            document.getElementById('victory-modal').classList.add('hidden');
+        }
+        
+        document.getElementById('start-btn').addEventListener('click', function() {
+            const form = document.getElementById('participant-form');
+            if (form.checkValidity()) {
+                // Submit form data to Google Forms
+                form.submit();
+                
+                // Show the main menu
+                showSection('main');
+            } else {
+                alert('Пожалуйста, заполните все обязательные поля для регистрации.');
+            }
+        });
+    </script>
+</body>
+</html>
